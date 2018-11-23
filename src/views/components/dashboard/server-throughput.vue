@@ -1,11 +1,11 @@
 <template>
-<rk-panel class="rk-application-throughput" title="Global Service Throughputs">
+<rk-panel class="rk-server-throughput" title="Server Throughputs">
   <div class="mb15" v-for="i in fiveData" :key="i.key">
     <div>
       <span class="r sm">{{i.value}} calls/ m</span>
       <div class="mb5">
-        <Tooltip :content="i.label" max-width="200" placement="top" class="ell" style="max-width: 200px;">
-          <span class="cp link-hover" @click="appChange(i)">{{i.label}}</span>
+        <Tooltip :content="i" max-width="300" placement="top" class="ell" style="max-width: 300px;">
+          <span class="cp link-hover" @click="appChange(i)">{{i.name}}</span>
         </Tooltip>
       </div>
     </div>
@@ -22,14 +22,14 @@ import { appChange } from '@/store/dispatch/dashboard.ts';
 
 @Component({})
 export default class RkChartBox extends Vue {
-  @State('dashboard') stateDashboard;
+  @State('options') stateOptions;
   changeApp = appChange;
   appChange(i) {
     const temp = { key: `${i.key}`, label: i.label };
     this.changeApp(temp);
   }
   get fiveData() {
-    return [...this.stateDashboard.applicationThroughput].splice(0, 4);
+    return [...this.stateOptions.serversThroughput];
   }
   get maxValue() {
     const temp:Number[] = this.fiveData.map(i => i.value);

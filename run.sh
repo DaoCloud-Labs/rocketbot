@@ -24,5 +24,6 @@ for ip in ${pool_ip[*]};do
     echo "add ${pool_name} ${ip} in ${ngx_upstream_file}"
     sed -i '/upstream '${pool_name}'[^-]*{/a\\server '${ip}';' ${ngx_upstream_file}
 done
+
 echo -e "\033[31m ====add nginx.conf :==== \033[0m"
 cat $absolute_path

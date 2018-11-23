@@ -17,7 +17,7 @@
     <div slot="inner" class="micro-panel-inner">
       <div class="rk-trace-detail">
         <h4 class="mb10">Tags.</h4>
-        <div class="mb15"><span class="mr10">Label:</span><span>{{this.currentSpan.label}}</span></div>
+        <div class="mb15"><span class="mr10">Endpoint:</span><span>{{this.currentSpan.label}}</span></div>
         <div class="half mb15"><span class="two-fifth">Span Type:</span><span class="three-fifth">{{this.currentSpan.type}}</span></div>
         <div class="half mb15"><span class="two-fifth">Component:</span><span class="three-fifth">{{this.currentSpan.component}}</span></div>
         <div class="half mb15"><span class="two-fifth">Peer:</span><span class="three-fifth">{{this.currentSpan.peer||'No Peer'}}</span></div>
@@ -27,7 +27,7 @@
         <div v-for="(i, index) in this.currentSpan.logs" :key="index">
           <div class="mb10 sm"><span class="mr10">Time:</span><span class="grey">{{i.time | dateformat}}</span></div>
           <div class="mb15" v-for="(_i, _index) in i.data" :key="_index">
-           <span class="one-fifth">{{_i.key}}:</span><pre class="four-fifth mt0 mb0" style="font-size：12px">{{_i.value}}</pre>
+           <span class="one-fifth">{{_i.key}}:</span><pre class="four-fifth mt0 mb0" style="font-size:12px;overflow:auto">{{_i.value}}</pre>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default class Trace extends Vue {
     padding: 15px 30px;
     display: flex;
     align-items: center;
-    background-color: #2f333c;
+    background-color: #333840;
     color: #fff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     .rk-trace-input{

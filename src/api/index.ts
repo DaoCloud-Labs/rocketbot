@@ -2,55 +2,138 @@ import axios, { AxiosPromise } from 'axios';
 import { Duration } from '@/store/interfaces/options';
 import dateCook from '@/utils/dateCook';
 const tag = '/api';
-
 // 获取应用
 const getAppsGq = (duration: Duration) => (
 {
   variables: {
     duration,
   },
-  query:
-  `
-  query applications($duration: Duration!) {
-    applications: getAllApplication(duration: $duration) {
+  query: window.localStorage.getItem('version') === '6' ?
+  `query ServiceOption($duration: Duration!) {
+    applications: getAllServices(duration: $duration) {
       key: id
       label: name
     }
-  }
-  `,
-});
-export const getApps = (params: Duration): AxiosPromise<any> => {
-  return axios.post(`${tag}/applications`, getAppsGq(dateCook(params)));
-};
-
-// 获取服务
-const getServicesGq = (applicationId: String) => (
-{
-  variables:{
-    applicationId,
-    keyword: '',
-  },
-  query:`query SearchService($applicationId: ID!, $keyword: String!) {
-    services: searchService(applicationId: $applicationId, keyword: $keyword, topN: 10) {
+  }`
+  :
+  `query applications($duration: Duration!) {
+    applications: getAllApplication(duration: $duration) {
       key: id
       label: name
     }
   }`,
 });
-export const getServices = params => axios.post(`${tag}/services`, getServicesGq(params));
 
-// 获取应用下信息
+export const getApps = (params: Duration): AxiosPromise<any> => {
+  return axios.post(`${tag}/applications`, getAppsGq(dateCook(params)));
+};
+// 获取端点
+const getEndpointsGq = (applicationId: String) => (
+{
+  variables:{
+    applicationId,
+    keyword: '',
+  },
+  query: window.localStorage.getItem('version') === '6' ?
+  `query SearchEndpoint($applicationId: ID!, $keyword: String!) {
+    endpoints: searchEndpoint(serviceId: $applicationId, keyword: $keyword, limit: 10) {
+      key: id
+      label: name
+    }
+  }`
+  :
+  `query SearchService($applicationId: ID!, $keyword: String!) {
+    endpoints: searchService(applicationId: $applicationId, keyword: $keyword, topN: 10) {
+      key: id
+      label: name
+    }
+  }`,
+});
+export const getEndpoints = params => axios.post(`${tag}/endpoints`, getEndpointsGq(params));
+
+// 获取服务器
 const getServersGq = (duration: Duration, applicationId: String) => (
 {
   variables: {
     duration,
     applicationId,
   },
-  query:`query Application($applicationId: ID!, $duration: Duration!) {
-    slowService: getSlowService(
-      applicationId: $applicationId,
-      duration: $duration,
-      topN: 10) {
+  query: window.localStorage.getItem('version') === '6' ?
+  `query Service($applicationId: ID!, $duration: Duration!) {
+    serviceSlowEndpoint: getEndpointTopN(
+      serviceId: $applicationId
+      duration: $duration
+      name: "endpoint_avg",
+      topN: 10,
+      order: DES
+    ) {
+      key: id
+      label: name
+      value
+    }
+    getServiceInstanceThroughput: getServiceInstanceTopN(
+      serviceId: $applicationId
+      duration: $duration
+      name: "service_instance_cpm",
+      topN: 10,
+      order: DES
+    ) {
+      key: id
+      name
+      value
+    }
+    getP99: getLinearIntValues(metric: {
+      name: "service_p99"
+      id: $applicationId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP95: getLinearIntValues(metric: {
+      name: "service_p95"
+      id: $applicationId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP90: getLinearIntValues(metric: {
+      name: "service_p90"
+      id: $applicationId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP75: getLinearIntValues(metric: {
+      name: "service_p75"
+      id: $applicationId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP50: getLinearIntValues(metric: {
+      name: "service_p50"
+      id: $applicationId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    servers:  getServiceInstances(duration: $duration, serviceId: $applicationId) {
+      key: id
+      name
+      attributes {
+        name
+        value
+      }
+    }
+  }`
+  :
+  `query Application($applicationId: ID!, $duration: Duration!) {
+    serviceSlowEndpoint: getSlowService(applicationId: $applicationId, duration: $duration, topN: 10) {
       service {
         key: id
         label: name
@@ -59,7 +142,7 @@ const getServersGq = (duration: Duration, applicationId: String) => (
       }
       value: avgResponseTime
     }
-    server: getServerThroughput(
+    servers: getServerThroughput(
       applicationId: $applicationId,
       duration: $duration,
       topN: 999999) {
@@ -69,33 +152,6 @@ const getServersGq = (duration: Duration, applicationId: String) => (
       pid
       ipv4
       value: cpm
-    }
-    applicationTopology: getApplicationTopology(
-      applicationId: $applicationId,
-      duration: $duration) {
-      nodes {
-        id
-        name
-        type
-        ... on ApplicationNode {
-          sla
-          cpm
-          avgResponseTime
-          apdex
-          isAlarm
-          numOfServer
-          numOfServerAlarm
-          numOfServiceAlarm
-        }
-      }
-      calls {
-        source
-        target
-        isAlert
-        callType
-        cpm
-        avgResponseTime
-      }
     }
   }`,
 });

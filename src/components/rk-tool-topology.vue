@@ -3,7 +3,7 @@
     <Icon class="r cp" type="md-close" @click="$emit('update:show', false);"/>
     <div class="flex">
       <div class="mr15 long">
-        <h6 class="mt0 mb10" style="margin-left: 7px;">Application</h6>
+        <h6 class="mt0 mb10" style="margin-left: 7px;">Service</h6>
         <select :value="stateTopo.current" style="background: 0;border: 0;color: #efefef;outline: none;width: 100%;" @change="appChange($event)">
           <option  style="background-color: #25292f;" :value="{ key: 'default',label: 'default' }">All</option>
           <option v-for="i in stateOptions.applications" :key="i.key" :value="i" >{{i.label}}</option>
@@ -15,7 +15,7 @@
           <a class="rk-tool-btn mr5" @click="quickTime(15)">15m</a>
           <a class="rk-tool-btn mr5" @click="quickTime(30)">30m</a>
           <a class="rk-tool-btn mr5" @click="quickTime(60)">1h</a>
-          <a class="rk-tool-btn mr5" @click="quickTime(120)">2h</a>
+          <!-- <a class="rk-tool-btn mr5" @click="quickTime(180)">3h</a> -->
           <a class="rk-tool-btn mr5" @click="quickTime(6*60)">6h</a>
           <a class="rk-tool-btn mr5" @click="quickTime(12*60)">12h</a>
           <a class="rk-tool-btn mr5" @click="quickTime(24*60)">1d</a>
@@ -36,12 +36,14 @@ import Vue from 'vue';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { setDuration } from '@/store/dispatch/_global.ts';
 import { getTopo } from '@/store/dispatch/topo.ts';
+import { State } from 'vuex-class';
 @Component({})
 export default class RkToolTime extends Vue {
   @Prop({ type: Boolean, default: false }) show: Boolean;
   @Prop() propsTime: any;
   @Prop() stateOptions: any;
   @Prop() stateTopo: any;
+  @State('global') stateGlobal;
   time:Date[] = [this.propsTime.start, this.propsTime.end];
   @Watch('time')
   onTimeUpdate() {
@@ -59,7 +61,10 @@ export default class RkToolTime extends Vue {
     return getTopo();
   }
   quickTime(time) {
-    this.time = [new Date(new Date().getTime() - (time * 60 * 1000)), new Date()];
+    this.time = [
+      new Date(this.stateGlobal.duration.end.getTime() - (time * 60 * 1000)),
+      this.stateGlobal.duration.end,
+    ];
   }
 }
 </script>

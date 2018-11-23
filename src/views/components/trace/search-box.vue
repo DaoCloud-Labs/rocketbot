@@ -2,14 +2,14 @@
 <div>
   <div class="rk-trace-search-box container">
     <div class="item">
-      <div class="mb5 label">Application</div>
+      <div class="mb5 label">Service</div>
       <select class="app" style="color:#fff;background: 0; border: 0; outline: none;" v-model="option.data.applicationId">
         <option style="background-color: #25292f;" value="ALL">All</option>
         <option style="background-color: #25292f;" :value="i.key" v-for="i in stateOptions.applications" :key="i.key">{{i.label}}</option>
       </select>
     </div>
     <div class="item">
-      <div class="mb5 label">Operate</div>
+      <div class="mb5 label">Endpoint</div>
       <input class="rk-trace-input" type="text" v-model="option.operationName">
     </div>
     <div class="item">
@@ -68,11 +68,18 @@ export default class SearchBox extends Vue {
     page: 1,
   };
   mounted() {
-    this.option.time = [this.stateGlobal.duration.start, this.stateGlobal.duration.end];
+    if (window.sessionStorage.getItem('traceOption')) {
+      const temp = JSON.parse(window.sessionStorage.getItem('traceOption'));
+      temp.time = [this.stateGlobal.duration.start, this.stateGlobal.duration.end];
+      this.option = temp;
+    } else {
+      this.option.time = [this.stateGlobal.duration.start, this.stateGlobal.duration.end];
+    }
   }
   @Watch('option', { deep: true })
   onOptionChanged(): void {
     getTraces(this.option);
+    window.sessionStorage.setItem('traceOption', JSON.stringify(this.option));
   }
   changePage(page) {
     this.option.page = page;
@@ -113,7 +120,7 @@ export default class SearchBox extends Vue {
   align-items: center;
   padding-top: 15px;
   padding-bottom:  15px;
-  background-color: #2f333c;
+  background-color: #333840;
   color: #fff;
   border-bottom:1px solid rgba(0,0,0,.05);
   .item{
